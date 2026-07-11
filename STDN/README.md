@@ -13,6 +13,41 @@ second:
 python train.py
 ```
 
+For the bundled PEMS-BAY HDF5 file, first convert it to the format used by
+`conf/PEMSBAY_1dim_48.conf`:
+
+```bash
+python STDN/convert_pems_bay.py
+python STDN/prepareData.py --config STDN/conf/PEMSBAY_1dim_48.conf
+```
+
+The converter writes `data/PEMS-BAY/PEMS-BAY.npz` with
+`data.shape == (52116, 325, 2)`: speed and Unix timestamp.
+The spatial graph is required for training and can be converted from the
+official DCRNN graph file with:
+
+```bash
+python STDN/convert_dcrnn_adjacency.py
+```
+
+It writes the `from,to,distance` edge list expected by the STDN config as
+`data/PEMS-BAY/PEMS-BAY.csv`.
+
+For METR-LA, use its downloaded DCRNN graph in the same way:
+
+```bash
+python STDN/convert_dcrnn_adjacency.py \
+  --input data/METR-LA/adj_mx.pkl --output data/METR-LA/METR-LA.csv
+```
+
+METR-LA can be converted with the same tool (its HDF5 table is `df`):
+
+```bash
+python STDN/convert_pems_bay.py \
+  --input data/METR-LA/metr-la.h5 --key df \
+  --output data/METR-LA/METR-LA.npz --num-of-vertices 207
+```
+
 The default setting is in conf/JiNan_1dim_12.conf
  
 ## Download the data from:

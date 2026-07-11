@@ -18,7 +18,7 @@ from utils import mae_rmse_mape, count_parameters, get_normalized_adj, cal_lape,
 from graph_utils import loadGraph
 
 warnings.filterwarnings('ignore')
-
+# python STDN/train.py --config STDN/conf/PEMSBAY_1dim_48.conf
 
 parser = argparse.ArgumentParser() 
 parser.add_argument("--config", default='conf/PEMSD4_1dim_12.conf', type=str,

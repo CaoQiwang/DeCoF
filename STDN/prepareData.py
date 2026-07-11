@@ -29,7 +29,7 @@ def seq2instance_plus(data, num_his, num_pred):
     y = np.array(y)
     return x, y
 
-# python STDN/prepareData.py --config STDN/conf/PEMSBAY_1dim_48_24.conf
+# python STDN/prepareData.py --config STDN/conf/PEMSBAY_1dim_48.conf
 
 if __name__ == "__main__":
 
