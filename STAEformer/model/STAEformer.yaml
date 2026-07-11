@@ -1,7 +1,7 @@
 METRLA:
   num_nodes: 207
-  in_steps: 12
-  out_steps: 12
+  in_steps: 24
+  out_steps: 24
 
   train_size: 0.7
   val_size: 0.1
@@ -22,8 +22,8 @@ METRLA:
 
   model_args:
     num_nodes: 207
-    in_steps: 12
-    out_steps: 12
+    in_steps: 24
+    out_steps: 24
     steps_per_day: 288
     input_dim: 3
     output_dim: 1

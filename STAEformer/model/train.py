@@ -27,6 +27,9 @@ from model.STAEformer import STAEformer
 
 # ! X shape: (B, T, N, C)
 
+# cd STAEformer/model
+# python train.py -d METRLA -g 0
+
 
 @torch.no_grad()
 def eval_model(model, valset_loader, criterion):
@@ -219,7 +222,7 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--gpu_num", type=int, default=0)
     args = parser.parse_args()
 
-    seed = torch.randint(1000, (1,)) # set random seed here
+    seed = int(torch.randint(1000, (1,)).item()) # set random seed here
     seed_everything(seed)
     set_cpu_num(1)
 
@@ -294,7 +297,6 @@ if __name__ == "__main__":
         optimizer,
         milestones=cfg["milestones"],
         gamma=cfg.get("lr_decay_rate", 0.1),
-        verbose=False,
     )
 
     # --------------------------- print model structure -------------------------- #

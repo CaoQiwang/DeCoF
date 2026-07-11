@@ -1,3 +1,43 @@
+# Datasets and generated preprocessing artifacts
 data/
+STAEformer/data/
+STDN/data/
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pkl
+
+# Training outputs, checkpoints, and experiment tracking
+STAEformer/logs/
+STAEformer/saved_models/
+STDN/logs/
+STDN/saved_models/
+checkpoints/
+runs/
+tensorboard/
+wandb/
+mlruns/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Python caches, virtual environments, and test output
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# System and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

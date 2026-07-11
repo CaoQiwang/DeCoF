@@ -1,4 +1,4 @@
-"""Build STAEformer's ``data.npz`` and ``index.npz`` from traffic HDF5 data."""
+"""Build STAEformer ``data.npz`` and ``index.npz`` from HDF5 or STDN NPZ data."""
 
 from __future__ import annotations
 
@@ -45,29 +45,41 @@ def convert(
     train_ratio: float,
     val_ratio: float,
 ) -> None:
-    frame = pd.read_hdf(input_path, key=key).sort_index()
-    if not isinstance(frame.index, pd.DatetimeIndex):
-        frame.index = pd.to_datetime(frame.index)
-    if frame.index.has_duplicates:
+    if input_path.suffix.lower() == ".npz":
+        source = np.load(input_path)
+        source_data = source["data"]
+        if source_data.ndim != 3 or source_data.shape[-1] < 2:
+            raise ValueError(
+                "STDN NPZ input must contain data with shape (time, nodes, "
+                "at least 2 features): traffic value and Unix timestamp"
+            )
+        values = source_data[..., 0].astype(np.float32)
+        timestamps = source_data[:, 0, 1]
+        index = pd.to_datetime(timestamps, unit="s")
+    else:
+        frame = pd.read_hdf(input_path, key=key).sort_index()
+        values = frame.to_numpy(dtype=np.float32)
+        index = pd.DatetimeIndex(frame.index)
+
+    if index.has_duplicates:
         raise ValueError("input data contains duplicate timestamps")
-    if frame.isna().any().any():
+    if not np.isfinite(values).all():
         raise ValueError("input data contains missing traffic values")
 
     # STAEformer multiplies channel 1 by steps_per_day before looking up its
     # time-of-day embedding, so this channel must be in [0, 1), not 0..287.
     steps_per_day = 288
     time_of_day = (
-        (frame.index.hour * 60 + frame.index.minute) // 5
+        (index.hour * 60 + index.minute) // 5
     ).to_numpy(dtype=np.float32) / steps_per_day
-    day_of_week = frame.index.dayofweek.to_numpy(dtype=np.float32)
-    values = frame.to_numpy(dtype=np.float32)
+    day_of_week = index.dayofweek.to_numpy(dtype=np.float32)
     data = np.empty((*values.shape, 3), dtype=np.float32)
     data[..., 0] = values
     data[..., 1] = time_of_day[:, None]
     data[..., 2] = day_of_week[:, None]
 
     train, val, test = build_indices(
-        len(frame), in_steps, out_steps, train_ratio, val_ratio
+        len(index), in_steps, out_steps, train_ratio, val_ratio
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(output_dir / "data.npz", data=data)
@@ -80,11 +92,11 @@ def convert(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", default="data/METR-LA/metr-la.h5")
+    parser.add_argument("--input", default="data/METR-LA/METR-LA.npz")
     parser.add_argument("--key", default="df", help="HDF5 table key")
     parser.add_argument("--output-dir", default="STAEformer/data/METRLA")
-    parser.add_argument("--in-steps", type=int, default=12)
-    parser.add_argument("--out-steps", type=int, default=12)
+    parser.add_argument("--in-steps", type=int, default=24)
+    parser.add_argument("--out-steps", type=int, default=24)
     parser.add_argument("--train-ratio", type=float, default=0.7)
     parser.add_argument("--val-ratio", type=float, default=0.1)
     args = parser.parse_args()
