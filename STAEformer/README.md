@@ -41,6 +41,15 @@ torchinfo
 
 #### Training Commands
 
+Prepare METR-LA from the raw HDF5 file first:
+
+```bash
+cd ..
+python STAEformer/prepare_data.py
+```
+
+This creates `STAEformer/data/METRLA/data.npz` and `index.npz`.
+
 ```bash
 cd model/
 python train.py -d <dataset> -g <gpu_id>
